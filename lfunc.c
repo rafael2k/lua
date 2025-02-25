@@ -9,7 +9,7 @@
 
 #include "lprefix.h"
 
-
+#include <signal.h>
 #include <stddef.h>
 
 #include "lua.h"
