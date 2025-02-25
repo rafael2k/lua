@@ -7,12 +7,11 @@
 #define lapi_c
 #define LUA_CORE
 
+
+
 #include "lprefix.h"
-
-
-#include <limits.h>
-#include <stdarg.h>
-#include <string.h>
+// #include <stdarg.h>
+// #include <string.h>
 
 #include "lua.h"
 
@@ -30,6 +29,8 @@
 #include "lundump.h"
 #include "lvm.h"
 
+// #include <signal.h>
+// #include <limits.h>
 
 
 const char lua_ident[] =

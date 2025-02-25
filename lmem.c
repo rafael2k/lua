@@ -11,6 +11,8 @@
 
 
 #include <stddef.h>
+#include <signal.h>
+#include <signal.h>
 
 #include "lua.h"
 

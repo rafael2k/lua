@@ -8,9 +8,16 @@
 #ifndef luaconf_h
 #define luaconf_h
 
-#include <limits.h>
-#include <stddef.h>
+#define HUGE_VAL __builtin_huge_val ()
+// #include <limits.h>
+// #include <stddef.h>
 
+#define INT_MAX 32767
+#define INT_MIN -32767
+#define UINT_MAX 65535
+#define LONG_MAX 2147483647L
+#define LONG_MIN -2147483647L
+#define ULONG_MAX 4294967295UL
 
 /*
 ** ===================================================================
@@ -131,8 +138,8 @@
 
 
 /* Default configuration ('long long' and 'double', for 64-bit Lua) */
-#define LUA_INT_DEFAULT		LUA_INT_LONGLONG
-#define LUA_FLOAT_DEFAULT	LUA_FLOAT_DOUBLE
+#define LUA_INT_DEFAULT		LUA_INT_LONG
+#define LUA_FLOAT_DEFAULT	LUA_FLOAT_FLOAT
 
 
 /*
@@ -690,7 +697,7 @@
 ** macro must include the header 'locale.h'.)
 */
 #if !defined(lua_getlocaledecpoint)
-#define lua_getlocaledecpoint()		(localeconv()->decimal_point[0])
+#define lua_getlocaledecpoint()	'.'
 #endif
 
 
@@ -764,11 +771,11 @@
 ** space and to reserve some numbers for pseudo-indices.
 ** (It must fit into max(int)/2.)
 */
-#if 1000000 < (INT_MAX / 2)
-#define LUAI_MAXSTACK		1000000
-#else
-#define LUAI_MAXSTACK		(INT_MAX / 2u)
-#endif
+//#if 1000000 < (INT_MAX / 2)
+#define LUAI_MAXSTACK		32767
+//#else
+//#define LUAI_MAXSTACK		(INT_MAX / 2u)
+//#endif
 
 
 /*

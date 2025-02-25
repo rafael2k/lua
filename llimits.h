@@ -8,7 +8,7 @@
 #define llimits_h
 
 
-#include <limits.h>
+// #include <limits.h>
 #include <stddef.h>
 
 
@@ -191,9 +191,9 @@ typedef void (*voidf)(void);
 #if !defined(l_noret)
 
 #if defined(__GNUC__)
-#define l_noret		void __attribute__((noreturn))
+#define l_noret		void __attribute__((__noreturn__))
 #elif defined(_MSC_VER) && _MSC_VER >= 1200
-#define l_noret		void __declspec(noreturn)
+#define l_noret		void __declspec(__noreturn__)
 #else
 #define l_noret		void
 #endif

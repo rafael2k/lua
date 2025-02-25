@@ -11,10 +11,11 @@
 
 
 #include <errno.h>
-#include <locale.h>
+// #include <locale.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <unistd.h>
 
 #include "lua.h"
 
@@ -121,7 +122,9 @@
 #else				/* }{ */
 
 /* ISO C definitions */
-#define LUA_TMPNAMBUFSIZE	L_tmpnam
+#define LUA_TMPNAMBUFSIZE	32
+// #define LUA_TMPNAMBUFSIZE	L_tmpnam
+
 #define lua_tmpnam(b,e)		{ e = (tmpnam(b) == NULL); }
 
 #endif				/* } */
@@ -157,7 +160,7 @@ static int os_execute (lua_State *L) {
 static int os_remove (lua_State *L) {
   const char *filename = luaL_checkstring(L, 1);
   errno = 0;
-  return luaL_fileresult(L, remove(filename) == 0, filename);
+  return luaL_fileresult(L, unlink(filename) == 0, filename);
 }
 
 
@@ -381,13 +384,15 @@ static int os_difftime (lua_State *L) {
 
 
 static int os_setlocale (lua_State *L) {
-  static const int cat[] = {LC_ALL, LC_COLLATE, LC_CTYPE, LC_MONETARY,
+#if 0
+	static const int cat[] = {LC_ALL, LC_COLLATE, LC_CTYPE, LC_MONETARY,
                       LC_NUMERIC, LC_TIME};
   static const char *const catnames[] = {"all", "collate", "ctype", "monetary",
      "numeric", "time", NULL};
   const char *l = luaL_optstring(L, 1, NULL);
   int op = luaL_checkoption(L, 2, "all", catnames);
   lua_pushstring(L, setlocale(cat[op], l));
+#endif
   return 1;
 }
 

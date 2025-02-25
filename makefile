@@ -1,45 +1,77 @@
-# Developer's makefile for building Lua
-# see luaconf.h for further customization
+##############################################################################
+#                                                                            #
+# Standard rulesets for use when compiling ELKS applications.                #
+#                                                                            #
+# This file should be included in every Makefile below elkscmd/ via e.g.:    #
+#   BASEDIR=..                                                               #
+#   include $(BASEDIR)/Makefile-rules                                        #
+#                                                                            #
+##############################################################################
 
-# == CHANGE THE SETTINGS BELOW TO SUIT YOUR ENVIRONMENT =======================
+ifndef TOPDIR
+$(error TOPDIR is not defined)
+endif
 
-# Warnings valid for both C and C++
-CWARNSCPP= \
-	-Wfatal-errors \
-	-Wextra \
-	-Wshadow \
-	-Wundef \
-	-Wwrite-strings \
-	-Wredundant-decls \
-	-Wdisabled-optimization \
-	-Wdouble-promotion \
-	-Wmissing-declarations \
-	-Wconversion \
-	-Wstrict-overflow=2 \
-        # the next warnings might be useful sometimes,
-	# but usually they generate too much noise
-	# -Werror \
-	# -pedantic   # warns if we use jump tables \
-	# -Wformat=2 \
-	# -Wcast-qual \
+include $(TOPDIR)/Make.defs
 
+##############################################################################
+#
+# It is not normally necessary to make changes below this line.
+#
+# Specify directories.
 
-# Warnings for gcc, not valid for clang
-CWARNGCC= \
-	-Wlogical-op \
-	-Wno-aggressive-loop-optimizations \
+ELKS_DIR=$(TOPDIR)/elks
+ELKSCMD_DIR=$(TOPDIR)/elkscmd
 
+INCLUDES=-I$(TOPDIR)/include -I$(TOPDIR)/libc/include -I$(ELKS_DIR)/include
 
-# The next warnings are neither valid nor needed for C++
-CWARNSC= -Wdeclaration-after-statement \
-	-Wmissing-prototypes \
-	-Wnested-externs \
-	-Wstrict-prototypes \
-	-Wc++-compat \
-	-Wold-style-definition \
+##############################################################################
+#
+# Determine the ELKS kernel version.
 
+E_V=$(shell if [ -f $(ELKS_DIR)/Makefile-rules ]; then \
+		grep -v '^\#' $(ELKS_DIR)/Makefile-rules \
+		    | fgrep = | head -4 | tr '\#' = | cut -d = -f 2 ;\
+	    else echo Version not known ; fi)
 
-CWARNS= $(CWARNSCPP) $(CWARNSC) $(CWARNGCC)
+ELKS_VSN=$(shell printf '%s.%s.%s%s' $(E_V))
+
+##############################################################################
+#
+# Compiler variables for programs to be compiled as host applications.
+HOSTCC = gcc
+HOSTCFLAGS = -O3
+
+##############################################################################
+#
+# Compiler variables for programs cross-compiled for ELKS.
+
+CLBASE =  -mcmodel=small -melks-libc -mtune=i8086 -Wall -Os
+CLBASE += -mno-segment-relocation-stuff
+CLBASE += -fno-inline -fno-builtin-printf -fno-builtin-fprintf
+#CLBASE += -mregparmcall
+ifeq ($(CONFIG_APPS_FTRACE), y)
+    CLBASE += -fno-omit-frame-pointer -fno-optimize-sibling-calls
+    CLBASE += -finstrument-functions-simple -maout-symtab
+endif
+
+# temporarily turn off typical non-K&R warnings for now
+WARNINGS = -Wno-implicit-int
+# temporarily turn off suggesting parenthesis around assignment used as truth value
+WARNINGS += -Wno-parentheses
+
+CC=ia16-elf-gcc
+AS=ia16-elf-as
+LD=ia16-elf-gcc
+
+# LOCALFLAGS=-DLUA_USE_POSIX
+
+CFLAGS =  $(CLBASE) $(WARNINGS) $(LOCALFLAGS) $(INCLUDES)
+CFLAGS += -Wextra -Wtype-limits -Wno-unused-parameter -Wno-sign-compare -Wno-empty-body
+CFLAGS += -D__ELKS__ -DELKS_VERSION=\"$(ELKS_VSN)\"
+ASFLAGS = -mtune=i8086 --32-segelf
+LDFLAGS = $(CLBASE)
+
 
 # Some useful compiler options for internal tests:
 # -DLUAI_ASSERT turns on all assertions inside Lua.
@@ -69,17 +101,14 @@ LOCAL = $(TESTS) $(CWARNS)
 
 
 # To enable Linux goodies, -DLUA_USE_LINUX
-# For C89, "-std=c89 -DLUA_USE_C89"
+# For C89, "-std=c89 -DLUA_USE_C89" -std=c99 -DLUA_USE_LINUX
 # Note that Linux/Posix options are not compatible with C89
-MYCFLAGS= $(LOCAL) -std=c99 -DLUA_USE_LINUX
-MYLDFLAGS= $(LOCAL) -Wl,-E
-MYLIBS= -ldl
+# MYCFLAGS= $(LOCAL)
+MYLDFLAGS= $(LOCAL) $(LDFLAGS) -Wl,-E
+# MYLIBS= -ldl
 
-
-CC= gcc
-CFLAGS= -Wall -O2 $(MYCFLAGS) -fno-stack-protector -fno-common -march=native
-AR= ar rc
-RANLIB= ranlib
+AR= ia16-elf-ar rc
+RANLIB= ia16-elf-ranlib
 RM= rm -f
 
 

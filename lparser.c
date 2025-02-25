@@ -12,6 +12,7 @@
 
 #include <limits.h>
 #include <string.h>
+#include <signal.h>
 
 #include "lua.h"
 

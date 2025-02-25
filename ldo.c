@@ -13,6 +13,7 @@
 #include <setjmp.h>
 #include <stdlib.h>
 #include <string.h>
+#include <signal.h>
 
 #include "lua.h"
 
