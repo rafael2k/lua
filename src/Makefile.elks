@@ -1,0 +1,53 @@
+# C86 Makefile for ELKS using OpenWatcom C
+
+############# Standard Section for Open Watcom C ##############
+ifndef TOPDIR
+$(error ELKS TOPDIR is not defined)
+endif
+
+ifndef WATCOM
+$(error OpenWatcom WATCOM is not defined)
+endif
+
+CC = owcc
+LD = owcc
+CLBASE = -mcmodel=l
+CLBASE += -bnone -march=i86 -std=c99
+CLBASE += -fno-stack-check -fnostdlib
+CLBASE += -Wc,-fpc -Wc,-zev -Wc,-zls -Wc,-x -Wc,-wcd=303
+WARNINGS = -Wall -Wextra
+INCLUDES = -I$(TOPDIR)/libc/include -I$(TOPDIR)/elks/include
+INCLUDES += -I$(TOPDIR)/libc/include/watcom
+DEFINES = -D__ELKS__ -DLUA_ANSI
+CFLAGS = -Os $(CLBASE) $(WARNINGS) $(INCLUDES) $(DEFINES) $(LOCALFLAGS)
+LDBASE = -bos2 -s
+LDBASE += -Wl,option -Wl,dosseg
+LDBASE += -Wl,option -Wl,start=_start
+LDBASE += -Wl,option -Wl,nodefaultlibs
+LDBASE += -Wl,option -Wl,stack=0x6000
+LDBASE += -Wl,option -Wl,heapsize=512
+LDFLAGS = $(LDBASE)
+LDLIBS = -Wl,library -Wl,$(TOPDIR)/libc/libc.lib -lm
+
+OBJS = $(SRCS:.c=.obj)
+%.obj: %.c
+	$(CC) -c $(CFLAGS) -o $*.obj $<
+
+############# End of Standard Section ##############
+
+BINDIR = ../elks-bin
+LOCALFLAGS = -DNDEBUG
+PROG = lua
+
+SRCS = lua.c lapi.c lcode.c ldebug.c ldo.c ldump.c lfunc.c lgc.c llex.c lmem.c \
+	lobject.c lopcodes.c lparser.c lstate.c lstring.c ltable.c ltm.c  \
+	lundump.c lvm.c lzio.c lauxlib.c lbaselib.c ldblib.c liolib.c lmathlib.c loslib.c ltablib.c \
+	lstrlib.c loadlib.c linit.c \
+
+all: $(PROG)
+
+$(PROG): $(OBJS)
+	$(LD) $(LDFLAGS) -o $@ $(OBJS) $(LDLIBS)
+
+clean:
+	rm -f $(PROG) *.obj tmp.h
