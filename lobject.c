@@ -30,6 +30,7 @@
 #include "lstring.h"
 #include "lvm.h"
 
+double ldexp(double x, int exp);
 
 /*
 ** Computes ceil(log2(x))
@@ -271,7 +272,7 @@ static lua_Number lua_strx2number (const char *s, char **endptr) {
     *endptr = cast_charp(s);  /* valid up to here */
   }
   if (neg) r = -r;
-  return l_mathop(ldexp)(r, e);
+  return ldexp(r, e);
 }
 
 #endif

@@ -41,6 +41,32 @@
 #include "lvm.h"
 
 
+// frexp implementation for ELKS
+double frexp(double value, int *exp) {
+    if (value == 0.0) {
+        *exp = 0;
+        return 0.0;
+    }
+
+    // Extrai o sinal do valor
+    int sign = (value < 0) ? -1 : 1;
+    value = (value < 0) ? -value : value;
+
+    // Normaliza o valor para o intervalo [0.5, 1.0)
+    *exp = 0;
+    while (value >= 1.0) {
+        value /= 2.0;
+        (*exp)++;
+    }
+    while (value < 0.5) {
+        value *= 2.0;
+        (*exp)--;
+    }
+
+    // Retorna a mantissa com o sinal original
+    return sign * value;
+}
+
 /*
 ** Only hash parts with at least 2^LIMFORLAST have a 'lastfree' field
 ** that optimizes finding a free slot. That field is stored just before

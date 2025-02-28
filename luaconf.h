@@ -8,7 +8,8 @@
 #ifndef luaconf_h
 #define luaconf_h
 
-#define HUGE_VAL __builtin_huge_val ()
+// #define HUGE_VAL __builtin_huge_val ()
+#define HUGE_VAL 32767
 #include <limits.h>
 // #include <stddef.h>
 
@@ -435,9 +436,7 @@
 
 
 /* The following definitions are good for most cases here */
-
-#define l_floor(x)		(l_mathop(floor)(x))
-
+#define l_floor(x)		((x > 0)? (double)(long)(x) : (double)(long)(x-1))
 
 /*
 @@ lua_numbertointeger converts a float number with an integral value

@@ -27,6 +27,7 @@
 #include "llimits.h"
 
 
+
 /*
 ** maximum number of captures that a pattern can do during
 ** pattern-matching. This limit is arbitrary, but must fit in
@@ -35,6 +36,16 @@
 #if !defined(LUA_MAXCAPTURES)
 #define LUA_MAXCAPTURES		32
 #endif
+
+double frexp(double value, int *exp);
+
+int iscntrl(int c) {
+    return (c >= 0 && c <= 31) || (c == 127);
+}
+
+int isgraph(int c) {
+    return (c >= 33 && c <= 126);
+}
 
 
 static int str_len (lua_State *L) {
@@ -1002,12 +1013,11 @@ static int str_gsub (lua_State *L) {
 */
 #define L_NBFD		((l_floatatt(MANT_DIG) - 1)%4 + 1)
 
-
 /*
 ** Add integer part of 'x' to buffer and return new 'x'
 */
 static lua_Number adddigit (char *buff, unsigned n, lua_Number x) {
-  lua_Number dd = l_mathop(floor)(x);  /* get integer part from 'x' */
+  lua_Number dd = (x > 0)?(lua_Number)(long)(x) : (lua_Number)(long)(x-1);  /* get integer part from 'x' */
   int d = (int)dd;
   buff[n] = cast_char(d < 10 ? d + '0' : d - 10 + 'a');  /* add to buffer */
   return x - dd;  /* return what is left */
@@ -1024,7 +1034,7 @@ static int num2straux (char *buff, unsigned sz, lua_Number x) {
   }
   else {
     int e;
-    lua_Number m = l_mathop(frexp)(x, &e);  /* 'x' fraction and exponent */
+    lua_Number m = frexp(x, &e);  /* 'x' fraction and exponent */
     unsigned n = 0;  /* character count */
     if (m < 0) {  /* is number negative? */
       buff[n++] = '-';  /* add sign */

@@ -190,7 +190,8 @@ static int os_getenv (lua_State *L) {
 
 
 static int os_clock (lua_State *L) {
-  lua_pushnumber(L, ((lua_Number)clock())/(lua_Number)CLOCKS_PER_SEC);
+  // lua_pushnumber(L, ((lua_Number)clock())/(lua_Number)CLOCKS_PER_SEC);
+  lua_pushnumber(L, ((lua_Number)-1)); // not available in ELKS libc
   return 1;
 }
 
@@ -376,7 +377,8 @@ static int os_time (lua_State *L) {
 static int os_difftime (lua_State *L) {
   time_t t1 = l_checktime(L, 1);
   time_t t2 = l_checktime(L, 2);
-  lua_pushnumber(L, (lua_Number)difftime(t1, t2));
+  // lua_pushnumber(L, (lua_Number)difftime(t1, t2));
+  lua_pushnumber(L, (lua_Number)t2-t1);
   return 1;
 }
 

@@ -39,6 +39,25 @@
 static int codesJ (FuncState *fs, OpCode o, int sj, int k);
 
 
+double ldexp(double x, int exp) {
+    if (x == 0.0) {
+        return 0.0;
+    }
+
+    double two_pow_exp = 1.0;
+    if (exp >= 0) {
+        for (int i = 0; i < exp; i++) {
+            two_pow_exp *= 2.0;
+        }
+    } else {
+        for (int i = 0; i > exp; i--) {
+            two_pow_exp /= 2.0;
+        }
+    }
+
+    return x * two_pow_exp;
+}
+
 
 /* semantic error */
 l_noret luaK_semerror (LexState *ls, const char *msg) {

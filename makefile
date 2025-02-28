@@ -46,8 +46,8 @@ HOSTCFLAGS = -O3
 #
 # Compiler variables for programs cross-compiled for ELKS.
 
-CLBASE =  -mcmodel=small -melks-libc -mtune=i8086 -Wall -Os
-CLBASE += -mno-segment-relocation-stuff
+CLBASE =  -mcmodel=medium -melks-libc -mtune=i8086 -Wall -Os
+CLBASE += -msegment-relocation-stuff -ffunction-sections
 CLBASE += -fno-inline -fno-builtin-printf -fno-builtin-fprintf
 #CLBASE += -mregparmcall
 ifeq ($(CONFIG_APPS_FTRACE), y)
@@ -116,7 +116,7 @@ RM= rm -f
 # == END OF USER SETTINGS. NO NEED TO CHANGE ANYTHING BELOW THIS LINE =========
 
 
-LIBS = -lm
+# LIBS = -lm
 
 CORE_T=	liblua.a
 CORE_O=	lapi.o lcode.o lctype.o ldebug.o ldo.o ldump.o lfunc.o lgc.o llex.o \

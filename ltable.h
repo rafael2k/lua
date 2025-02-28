@@ -14,7 +14,6 @@
 #define gval(n)		(&(n)->i_val)
 #define gnext(n)	((n)->u.next)
 
-
 /*
 ** Clear all bits of fast-access metamethods, which means that the table
 ** may have any of these metamethods. (First access that fails after the
