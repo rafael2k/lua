@@ -82,6 +82,52 @@
 #endif
 
 
+double fmod(double x, double y) {
+    if (y == 0.0) {
+        // Divisão por zero é indefinida
+        return 0.0 / 0.0; // Retorna NaN
+    }
+
+    // Calcula o quociente inteiro
+    double quotient = x / y;
+    double truncated = (long) quotient; // Trunca a parte decimal
+
+    // Calcula o resto
+    double remainder = x - truncated * y;
+
+    return remainder;
+}
+
+double pow(double base, double exponent) {
+    if (exponent == 0.0) {
+        return 1.0;
+    }
+
+    if (base == 0.0 && exponent > 0.0) {
+        return 0.0;
+    }
+
+    if (base == 0.0 && exponent < 0.0) {
+        return 1.0 / 0.0; // Retorna infinito
+    }
+
+    int is_negative_exponent = (exponent < 0.0);
+    if (is_negative_exponent) {
+        exponent = -exponent;
+    }
+
+    double result = 1.0;
+    for (int i = 0; i < (int)exponent; i++) {
+        result *= base;
+    }
+
+    if (is_negative_exponent) {
+        result = 1.0 / result;
+    }
+
+    return result;
+}
+
 /*
 ** Try to convert a value from string to a number value.
 ** If the value is not a string or is a string not representing
