@@ -45,6 +45,8 @@ SRCS = lua.c mem.c lapi.c lcode.c ldebug.c ldo.c ldump.c lfunc.c lgc.c llex.c lm
 	lundump.c lvm.c lzio.c lauxlib.c lbaselib.c ldblib.c liolib.c loslib.c ltablib.c \
 	lstrlib.c loadlib.c linit.c \
 
+elks: all
+
 all: $(PROG)
 
 $(PROG): $(OBJS)

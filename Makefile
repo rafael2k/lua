@@ -5,11 +5,11 @@
 # == CHANGE THE SETTINGS BELOW TO SUIT YOUR ENVIRONMENT =======================
 
 # Your platform. See PLATS for possible values.
-PLAT= none
+PLAT= elks
 
 # Where to install. The installation starts in the src and doc directories,
 # so take care if INSTALL_TOP is not an absolute path.
-INSTALL_TOP= /usr/local
+INSTALL_TOP= /usr
 INSTALL_BIN= $(INSTALL_TOP)/bin
 INSTALL_INC= $(INSTALL_TOP)/include
 INSTALL_LIB= $(INSTALL_TOP)/lib
@@ -38,7 +38,8 @@ RANLIB= ranlib
 # == END OF USER SETTINGS. NO NEED TO CHANGE ANYTHING BELOW THIS LINE =========
 
 # Convenience platforms targets.
-PLATS= aix ansi bsd freebsd generic linux macosx mingw posix solaris
+# PLATS= aix ansi bsd freebsd generic linux macosx mingw posix solaris
+PLATS= elks
 
 # What to install.
 TO_BIN= lua luac
@@ -52,8 +53,11 @@ R= 5.1.5
 
 all:	$(PLAT)
 
-$(PLATS) clean:
-	cd src && $(MAKE) $@
+# $(PLATS) clean:
+#	cd src && $(MAKE) $@
+
+elks clean:
+	cd src && $(MAKE) -f Makefile.elks $@
 
 test:	dummy
 	src/lua test/hello.lua
@@ -75,7 +79,7 @@ none:
 	@echo "Please do"
 	@echo "   make PLATFORM"
 	@echo "where PLATFORM is one of these:"
-	@echo "   $(PLATS)"
+	@echo "   $(PLATS) "
 	@echo "See INSTALL for complete instructions."
 
 # make may get confused with test/ and INSTALL in a case-insensitive OS
