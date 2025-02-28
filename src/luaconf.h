@@ -73,7 +73,7 @@
 @* LNUM_INT32 LNUM_COMPLEX' gives float range complex numbers, with 
 @* 32-bit scalar integer range optimized.
 */
-/*#define LNUM_DOUBLE*/
+#define LNUM_INT32
 
 
 /*
