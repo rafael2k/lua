@@ -25,7 +25,7 @@ LDBASE += -Wl,option -Wl,dosseg
 LDBASE += -Wl,option -Wl,start=_start
 LDBASE += -Wl,option -Wl,nodefaultlibs
 LDBASE += -Wl,option -Wl,stack=0x6000
-LDBASE += -Wl,option -Wl,heapsize=0x5000
+LDBASE += -Wl,option -Wl,heapsize=512
 LDFLAGS = $(LDBASE)
 LDLIBS = -Wl,library -Wl,$(TOPDIR)/libc/libc.lib -lm
 
@@ -39,7 +39,7 @@ BINDIR = ../elks-bin
 LOCALFLAGS = -DNDEBUG
 PROG = lua
 # removed mathlib.c for now
-SRCS = lua.c lapi.c lctype.c lfunc.c loslib.c \
+SRCS = lua.c mem.c lapi.c lctype.c lfunc.c loslib.c \
      ltable.c lundump.c lauxlib.c ldblib.c lgc.c lmem.c \
         lparser.c ltablib.c lutf8lib.c lbaselib.c ldebug.c \
         linit.c loadlib.c lstate.c ltm.c lvm.c lcode.c \
