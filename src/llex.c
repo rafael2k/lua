@@ -6,7 +6,6 @@
 
 
 #include <ctype.h>
-#include <locale.h>
 #include <string.h>
 
 #define llex_c
@@ -23,6 +22,9 @@
 #include "ltable.h"
 #include "lzio.h"
 
+int iscntrl(int c) {
+    return (c >= 0 && c <= 31) || (c == 127);
+}
 
 
 #define next(ls) (ls->current = zgetc(ls->z))
@@ -178,9 +180,9 @@ static void buffreplace (LexState *ls, char from, char to) {
 
 static void trydecpoint (LexState *ls, SemInfo *seminfo) {
   /* format error: try to update decimal point separator */
-  struct lconv *cv = localeconv();
+  // struct lconv *cv = localeconv();
   char old = ls->decpoint;
-  ls->decpoint = (cv ? cv->decimal_point[0] : '.');
+  ls->decpoint =  '.';
   buffreplace(ls, old, ls->decpoint);  /* try updated decimal separator */
   if (!luaO_str2d(luaZ_buffer(ls->buff), &seminfo->r)) {
     /* format error with correct decimal point: no more options */

@@ -23,7 +23,7 @@
 /* macro to `unsign' a character */
 #define uchar(c)        ((unsigned char)(c))
 
-
+int iscntrl(int c);
 
 static int str_len (lua_State *L) {
   size_t l;

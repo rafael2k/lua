@@ -27,6 +27,7 @@
 #include "lvm.h"
 
 
+int32_t pow(int32_t base, int32_t exponent);
 
 /* limit for table tag-method chains (to avoid loops) */
 #define MAXTAGLOOP	100

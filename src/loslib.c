@@ -6,7 +6,6 @@
 
 
 #include <errno.h>
-#include <locale.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
@@ -54,12 +53,20 @@ static int os_rename (lua_State *L) {
 }
 
 
+int tmpfile_counter = 0;
+
+static void generate_temp_filename(char *buff) {
+    sprintf(buff, "tempfile_%d.tmp", tmpfile_counter++);
+}
+
+
 static int os_tmpname (lua_State *L) {
-  char buff[LUA_TMPNAMBUFSIZE];
-  int err;
-  lua_tmpnam(buff, err);
-  if (err)
-    return luaL_error(L, "unable to generate a unique filename");
+  char buff[32];
+  //int err;
+  generate_temp_filename(buff);
+  //lua_tmpnam(buff, err);
+  //if (err)
+  //  return luaL_error(L, "unable to generate a unique filename");
   lua_pushstring(L, buff);
   return 1;
 }
@@ -72,7 +79,8 @@ static int os_getenv (lua_State *L) {
 
 
 static int os_clock (lua_State *L) {
-  lua_pushnumber(L, ((lua_Number)clock())/(lua_Number)CLOCKS_PER_SEC);
+  // lua_pushnumber(L, ((lua_Number)clock())/(lua_Number)CLOCKS_PER_SEC);  -- for elks
+  lua_pushnumber(L, ((lua_Number) -1));
   return 1;
 }
 
@@ -193,8 +201,7 @@ static int os_time (lua_State *L) {
 
 
 static int os_difftime (lua_State *L) {
-  lua_pushnumber(L, difftime((time_t)(luaL_checknumber(L, 1)),
-                             (time_t)(luaL_optnumber(L, 2, 0))));
+  lua_pushnumber(L, luaL_optnumber(L, 2, 0) - luaL_checknumber(L, 1));
   return 1;
 }
 
@@ -202,6 +209,7 @@ static int os_difftime (lua_State *L) {
 
 
 static int os_setlocale (lua_State *L) {
+#if 0
   static const int cat[] = {LC_ALL, LC_COLLATE, LC_CTYPE, LC_MONETARY,
                       LC_NUMERIC, LC_TIME};
   static const char *const catnames[] = {"all", "collate", "ctype", "monetary",
@@ -209,6 +217,7 @@ static int os_setlocale (lua_State *L) {
   const char *l = luaL_optstring(L, 1, NULL);
   int op = luaL_checkoption(L, 2, "all", catnames);
   lua_pushstring(L, setlocale(cat[op], l));
+#endif
   return 1;
 }
 

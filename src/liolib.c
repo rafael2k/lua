@@ -179,6 +179,45 @@ static int io_popen (lua_State *L) {
   return (*pf == NULL) ? pushresult(L, 0, filename) : 1;
 }
 
+extern int tmpfile_counter;
+
+// Function to generate a unique filename
+static char* generate_temp_filename2() {
+    char* filename = malloc(20); // Allocate space for the filename
+    if (!filename) {
+        perror("malloc");
+        return NULL;
+    }
+    sprintf(filename, "tempfile_%d.tmp", tmpfile_counter++);
+    return filename;
+}
+
+// Simplified tmpfile() implementation
+static FILE* tmpfile() {
+    // Generate a unique filename
+    char* filename = generate_temp_filename2();
+    if (!filename) {
+        return NULL;
+    }
+
+    // Open the file in binary read/write mode
+    FILE* file = fopen(filename, "wb+");
+    if (!file) {
+        perror("fopen");
+        free(filename);
+        return NULL;
+    }
+
+    // Register the file for deletion on program exit
+    if (remove(filename) != 0) {
+        perror("remove");
+    }
+
+    // Free the filename (the file is already open)
+    free(filename);
+
+    return file;
+}
 
 static int io_tmpfile (lua_State *L) {
   FILE **pf = newfile(L);
