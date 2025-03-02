@@ -1,3 +1,7 @@
+This is a Lua port for ELKS using int32_t as Lua number.
+Not all features will behave properly - keep integer-only for
+predictable results.
+
 README for Lua 5.1
 
 See INSTALL for installation instructions.
