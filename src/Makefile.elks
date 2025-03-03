@@ -37,20 +37,32 @@ OBJS = $(SRCS:.c=.obj)
 
 BINDIR = ../elks-bin
 LOCALFLAGS = -DNDEBUG
-PROG = lua
+PROG = lua luac
 
 # lmathlib.c removed
-SRCS = lua.c mem.c lmathlib.c lapi.c lcode.c ldebug.c ldo.c ldump.c lfunc.c lgc.c llex.c lmem.c \
+SRCS = mem.c lmathlib.c lapi.c lcode.c ldebug.c ldo.c ldump.c lfunc.c lgc.c llex.c lmem.c \
 	lobject.c lopcodes.c lparser.c lstate.c lstring.c ltable.c ltm.c  \
 	lundump.c lvm.c lzio.c lauxlib.c lbaselib.c ldblib.c liolib.c loslib.c ltablib.c \
 	lstrlib.c loadlib.c linit.c \
 
-elks: all
-
 all: $(PROG)
 
-$(PROG): $(OBJS)
-	$(LD) $(LDFLAGS) -o $@ $(OBJS) $(LDLIBS)
+elks: all
+
+lua: $(OBJS) lua.obj
+	$(LD) $(LDFLAGS) -o $@ $(OBJS) lua.obj $(LDLIBS)
+
+luac: $(OBJS) luac.obj print.obj
+	$(LD) $(LDFLAGS) -o $@ $(OBJS) luac.obj print.obj $(LDLIBS)
+
+lua.obj: lua.c
+	$(CC) -c $(CFLAGS) -o lua.obj $<
+
+luac.obj: luac.c
+	$(CC) -c $(CFLAGS) -o luac.obj $<
+
+print.obj: print.c
+	$(CC) -c $(CFLAGS) -o print.obj $<
 
 clean:
 	rm -f $(PROG) *.obj tmp.h
