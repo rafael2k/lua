@@ -27,6 +27,6 @@ function test(x)
 	io.write(x,"! = ",factorial(x),"\n")
 end
 
-for n=0,16 do
+for n=0,12 do
 	test(n)
 end
