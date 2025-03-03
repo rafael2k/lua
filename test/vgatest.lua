@@ -13,3 +13,6 @@ end
 
 -- Draw a filled rectangle at position (50, 50) with width 100 and height 50, using color 15 (white)
 draw_filled_rectangle(50, 50, 100, 50, 15)
+draw_filled_rectangle(100, 100, 100, 50, 4)
+
+vga_init(0x03)
