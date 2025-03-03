@@ -6,7 +6,7 @@ function draw_filled_rectangle(x, y, width, height, color)
     -- Loop through the height and width to plot each pixel in the rectangle
     for i = 0, width - 1 do
         for j = 0, height - 1 do
-            put_pixel(x + i, y + j, color)  -- Draw pixel at (x + i, y + j)
+            plot_pixel(x + i, y + j, color)  -- Draw pixel at (x + i, y + j)
         end
     end
 end
