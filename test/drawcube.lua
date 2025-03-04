@@ -40,7 +40,7 @@ end
 
 while true do
 -- Clear screen
-  for x = 0, 319 do
+   for x = 0, 319 do
     for y = 0, 199 do
       plot_pixel(x, y, 0) -- Black
     end
@@ -59,7 +59,7 @@ while true do
 -- Draw cube edges
    for _, edge in ipairs(edges) do
       local p1, p2 = transformed[edge[1]], transformed[edge[2]]
-      draw_line(p1[1], p1[2], p2[1], p2[2], 15)  -- White color
+      plot_line(p1[1], p1[2], p2[1], p2[2], 15)  -- White color
    end
 
 -- Update rotation
