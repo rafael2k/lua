@@ -70,8 +70,8 @@ function dealCard()
 function dealCards()
  print("HERE ARE THE NEXT TWO CARDS:")
  local cardValues = {first=dealCard(),second=dealCard()}
- print( "First Card:" .. showCard(cardValues.first) )
- print( "Second Card:" .. showCard(cardValues.second) )
+ print( "First Card: " .. showCard(cardValues.first) )
+ print( "Second Card: " .. showCard(cardValues.second) )
 
 return cardValues
 
@@ -87,7 +87,7 @@ function getBet()
 
   -- Loop to get a valid bet or a zero bet
   repeat
-  io.write("WHAT IS YOUR BET:");
+  io.write("WHAT IS YOUR BET: ");
   local amount = io.read();
   betAmount = tonumber(amount)
   if betAmount==0 then
@@ -114,7 +114,7 @@ function playRound( cardValues )
   local firstCard = cardValues.first
   local secondCard = cardValues.second
 
-  print( "Dealer Card" .. showCard(playerCard) )
+  print( "Dealer Card: " .. showCard(playerCard) )
 
   local minValue = math.min( firstCard, secondCard )
   local maxValue = math.max( firstCard, secondCard )
