@@ -50,10 +50,15 @@ while true do
 
 -- Rotate and project each vertex
    for i, v in ipairs(cube) do
-      local x, y, z = v[1], v[2], v[3]
-      x, y, z = rotateX(x, y, z, angleX)
-      x, y, z = rotateY(x, y, z, angleY)
-      transformed[i] = {project3D(x, y, z)}
+     local x, y, z = v[1], v[2], v[3]
+
+     -- Apply both rotations
+     local rx, ry, rz = rotateX(x, y, z, angleX)
+     local finalX, finalY, finalZ = rotateY(rx, ry, rz, angleY)
+
+     -- Project after both rotations
+     local screenX, screenY = project3D(finalX, finalY, finalZ)
+     transformed[i] = {screenX, screenY} -- Store the transformed screen coordinates
    end
 
 -- Draw cube edges
