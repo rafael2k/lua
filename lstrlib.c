@@ -37,11 +37,14 @@
 #define LUA_MAXCAPTURES		32
 #endif
 
-int iscntrl(int c) {
-    return (c >= 0 && c <= 31) || (c == 127);
+int iscntrl(int c)
+{
+    return (-128 <= c && c < -96) || (0 <= c && c < 32) ||
+	(127 <= c && c < 160);
 }
 
-int isgraph(int c) {
+int isgraph(int c)
+{
     return (c >= 33 && c <= 126);
 }
 
