@@ -40,7 +40,7 @@
 #include "ltable.h"
 #include "lvm.h"
 
-
+#if 0
 // frexp implementation for ELKS
 double frexp(double value, int *exp) {
     if (value == 0.0) {
@@ -66,6 +66,7 @@ double frexp(double value, int *exp) {
     // Retorna a mantissa com o sinal original
     return sign * value;
 }
+#endif
 
 /*
 ** Only hash parts with at least 2^LIMFORLAST have a 'lastfree' field

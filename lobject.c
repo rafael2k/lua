@@ -30,7 +30,6 @@
 #include "lstring.h"
 #include "lvm.h"
 
-double ldexp(double x, int exp);
 
 /*
 ** Computes ceil(log2(x))

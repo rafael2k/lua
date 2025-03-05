@@ -37,8 +37,6 @@
 #define LUA_MAXCAPTURES		32
 #endif
 
-double frexp(double value, int *exp);
-
 int iscntrl(int c) {
     return (c >= 0 && c <= 31) || (c == 127);
 }
