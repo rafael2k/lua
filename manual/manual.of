@@ -290,7 +290,9 @@ an @def{error object}
 is propagated with information about the error.
 Lua itself only generates errors whose error object is a string,
 but programs can generate errors with
-any value as the error object.
+any value as the error object,
+except @nil.
+(Lua will change a @nil as error object to a string message.)
 It is up to the Lua program or its host to handle such error objects.
 For historical reasons,
 an error object is often called an @def{error message},
@@ -1612,10 +1614,11 @@ or exiting by an error.
 Here, to @emph{close} a value means
 to call its @idx{__close} metamethod.
 When calling the metamethod,
-the value itself is passed as the first argument
-and the error object that caused the exit (if any)
+the value itself is passed as the first argument.
+If there was an error,
+the error object that caused the exit
 is passed as a second argument;
-if there was no error, the second argument is @nil.
+otherwise, there is no second argument.
 
 The value assigned to a to-be-closed variable
 must have a @idx{__close} metamethod
@@ -6347,7 +6350,7 @@ Opens all standard Lua libraries into the given state.
 @APIEntry{void luaL_openselectedlibs (lua_State *L, int load, int preload);|
 @apii{0,0,e}
 
-Opens (loads) and preloads selected libraries into the state @id{L}.
+Opens (loads) and preloads selected standard libraries into the state @id{L}.
 (To @emph{preload} means to add
 the library loader into the table @Lid{package.preload},
 so that the library can be required later by the program.
@@ -8081,6 +8084,8 @@ multiple assignment:
 The default for @id{a2} is @id{a1}.
 The destination range can overlap with the source range.
 The number of elements to be moved must fit in a Lua integer.
+If @id{f} is larger than @id{e},
+nothing is moved.
 
 Returns the destination table @id{a2}.
 
@@ -9399,6 +9404,11 @@ declare a local variable with the same name in the loop body.
 
 @item{
 A chain of @id{__call} metamethods can have at most 15 objects.
+}
+
+@item{
+In an error, a @nil as the error object is replaced by a
+string message.
 }
 
 }

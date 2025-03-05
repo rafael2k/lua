@@ -45,8 +45,8 @@ end
 -- test error message with no extra info
 assert(doit("error('hi', 0)") == 'hi')
 
--- test error message with no info
-assert(doit("error()") == nil)
+-- test nil error message
+assert(doit("error()") == "<error object is nil>")
 
 
 -- test common errors/errors that crashed in the past
@@ -555,7 +555,7 @@ if not _soft then
 
   -- error in error handling
   local res, msg = xpcall(error, error)
-  assert(not res and type(msg) == 'string')
+  assert(not res and msg == 'error in error handling')
   print('+')
 
   local function f (x)
@@ -586,6 +586,27 @@ if not _soft then
 end
 
 
+do  -- errors in error handle that not necessarily go forever
+  local function err (n)   -- function to be used as message handler
+    -- generate an error unless n is zero, so that there is a limited
+    -- loop of errors
+    if type(n) ~= "number" then   -- some other error?
+      return n   -- report it
+    elseif n == 0 then
+      return "END"   -- that will be the final message
+    else error(n - 1)   -- does the loop
+    end
+  end
+
+  local res, msg = xpcall(error, err, 170)
+  assert(not res and msg == "END")
+
+  -- too many levels
+  local res, msg = xpcall(error, err, 300)
+  assert(not res and msg == "C stack overflow")
+end
+
+
 do
   -- non string messages
   local t = {}
@@ -593,7 +614,7 @@ do
   assert(not res and msg == t)
 
   res, msg = pcall(function () error(nil) end)
-  assert(not res and msg == nil)
+  assert(not res and msg == "<error object is nil>")
 
   local function f() error{msg='x'} end
   res, msg = xpcall(f, function (r) return {msg=r.msg..'y'} end)
@@ -613,7 +634,7 @@ do
   assert(not res and msg == t)
 
   res, msg = pcall(assert, nil, nil)
-  assert(not res and msg == nil)
+  assert(not res and type(msg) == "string")
 
   -- 'assert' without arguments
   res, msg = pcall(assert)
