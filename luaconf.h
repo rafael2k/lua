@@ -9,7 +9,7 @@
 #define luaconf_h
 
 // #define HUGE_VAL __builtin_huge_val ()
-#define HUGE_VAL 32767
+//#define HUGE_VAL 32767
 #include <limits.h>
 // #include <stddef.h>
 
