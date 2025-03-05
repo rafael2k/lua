@@ -81,7 +81,7 @@
 
 #endif
 
-
+#if 0
 double fmod(double x, double y) {
     if (y == 0.0) {
         // Divisão por zero é indefinida
@@ -127,6 +127,7 @@ double pow(double base, double exponent) {
 
     return result;
 }
+#endif
 
 /*
 ** Try to convert a value from string to a number value.

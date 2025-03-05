@@ -13,7 +13,7 @@ CC = owcc
 LD = owcc
 CLBASE = -mcmodel=l
 CLBASE += -bnone -march=i86 -std=c99
-CLBASE += -fno-stack-check -fnostdlib
+CLBASE += -fno-stack-check -fnostdlib -fsigned-char
 CLBASE += -Wc,-fpc -Wc,-zev -Wc,-zls -Wc,-x -Wc,-wcd=303
 WARNINGS = -Wall -Wextra
 INCLUDES = -I$(TOPDIR)/libc/include -I$(TOPDIR)/elks/include
@@ -38,8 +38,8 @@ OBJS = $(SRCS:.c=.obj)
 BINDIR = ../elks-bin
 LOCALFLAGS = -DNDEBUG
 PROG = lua
-# removed mathlib.c for now
-SRCS = lua.c mem.c lapi.c lctype.c lfunc.c loslib.c \
+
+SRCS = lua.c mem.c lmathlib.c lapi.c lctype.c lfunc.c loslib.c \
      ltable.c lundump.c lauxlib.c ldblib.c lgc.c lmem.c \
         lparser.c ltablib.c lutf8lib.c lbaselib.c ldebug.c \
         linit.c loadlib.c lstate.c ltm.c lvm.c lcode.c \
