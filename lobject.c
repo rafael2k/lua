@@ -271,7 +271,7 @@ static lua_Number lua_strx2number (const char *s, char **endptr) {
     *endptr = cast_charp(s);  /* valid up to here */
   }
   if (neg) r = -r;
-  return ldexp(r, e);
+  return l_mathop(ldexp)(r, e);
 }
 
 #endif
