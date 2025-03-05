@@ -436,7 +436,7 @@
 
 
 /* The following definitions are good for most cases here */
-#define l_floor(x)		((x > 0)? (double)(long)(x) : (double)(long)(x-1))
+#define l_floor(x)             (l_mathop(floor)(x))
 
 /*
 @@ lua_numbertointeger converts a float number with an integral value
