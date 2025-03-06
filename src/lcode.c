@@ -27,23 +27,6 @@
 #define hasjumps(e)	((e)->t != (e)->f)
 
 
-int32_t pow(int32_t base, int32_t exponent)
-{
-    if (exponent < 0) {
-        return 0; // Negative exponents are not supported for integers
-    }
-
-    int32_t result = 1;
-    while (exponent > 0) {
-        if (exponent % 2 == 1) {
-            result *= base; // Multiply result by base if exponent is odd
-        }
-        base *= base; // Square the base
-        exponent /= 2; // Halve the exponent
-    }
-    return result;
-}
-
 static int isnumeral(expdesc *e) {
   return (e->k == VKNUM && e->t == NO_JUMP && e->f == NO_JUMP);
 }

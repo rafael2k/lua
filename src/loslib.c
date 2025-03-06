@@ -56,7 +56,7 @@ static int os_rename (lua_State *L) {
 int tmpfile_counter = 0;
 
 static void generate_temp_filename(char *buff) {
-    sprintf(buff, "tempfile_%d.tmp", tmpfile_counter++);
+    sprintf(buff, "tmp_%d.tmp", tmpfile_counter++);
 }
 
 
@@ -80,7 +80,7 @@ static int os_getenv (lua_State *L) {
 
 static int os_clock (lua_State *L) {
   // lua_pushnumber(L, ((lua_Number)clock())/(lua_Number)CLOCKS_PER_SEC);  -- for elks
-  lua_pushnumber(L, ((lua_Number) -1));
+  lua_pushnumber(L, ((lua_Number)time(NULL))); // elks hack
   return 1;
 }
 
