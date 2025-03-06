@@ -21,10 +21,10 @@
 #define PI (3.14159265358979323846)
 #define RADIANS_PER_DEGREE (PI/180.0)
 
-#define HUGE_VAL 2147483647LU
+// #define HUGE_VAL 2147483647LU
 
 
-int32_t ldexp(int32_t x, int32_t exp) {
+int32_t ldexp2(int32_t x, int32_t exp) {
     if (x == 0) {
         return 0;
     }
@@ -177,7 +177,7 @@ static int math_frexp (lua_State *L) {
 #endif
 
 static int math_ldexp (lua_State *L) {
-  lua_pushnumber(L, ldexp(luaL_checknumber(L, 1), luaL_checkint(L, 2)));
+  lua_pushnumber(L, ldexp2(luaL_checknumber(L, 1), luaL_checkint(L, 2)));
   return 1;
 }
 
