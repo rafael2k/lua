@@ -19,8 +19,8 @@
 #include "lauxlib.h"
 #include "lualib.h"
 
-
-
+typedef unsigned char  byte;
+byte __far *VGA = (byte __far *)0xA0000000L;
 
 /*
 ** If your system does not support `stdout', you can just remove this function.
@@ -443,6 +443,78 @@ static int luaB_newproxy (lua_State *L) {
   return 1;
 }
 
+static int luaB_vga_init(lua_State *L)
+{
+lua_Number mode = luaL_checknumber(L, 1);  // Get the argument
+unsigned short int mode_int = (unsigned short int) mode;
+
+_asm{
+                push si
+                push di
+                push bp
+                push es
+                mov ax,[mode_int]
+                int 0x10
+                pop es
+                pop bp
+                pop di
+                pop si
+        }
+return 1;
+}
+
+static int luaB_plot_pixel(lua_State *L)
+{
+lua_Number number = luaL_checknumber(L, 1);
+unsigned int x = (unsigned int) number;
+
+number = luaL_checknumber(L, 2);
+unsigned int y = (unsigned int) number;
+
+number = luaL_checknumber(L, 3);
+unsigned int c = (unsigned int) number;
+
+/*  y*320 = y*256 + y*64 = y*2^8 + y*2^6   */
+VGA[(y<<8)+(y<<6)+x]=c;
+
+return 1;
+}
+
+static int luaB_plot_line(lua_State *L)
+{
+    lua_Number number = luaL_checknumber(L, 1);
+    unsigned int x0 = (unsigned int) number;
+
+    number = luaL_checknumber(L, 2);
+    unsigned int y0 = (unsigned int) number;
+
+    number = luaL_checknumber(L, 3);
+    unsigned int x1 = (unsigned int) number;
+	
+    number = luaL_checknumber(L, 4);
+    unsigned int y1 = (unsigned int) number;
+	
+    number = luaL_checknumber(L, 5);
+    unsigned int color = (unsigned int) number;
+
+    int dx = abs((int)x1 - x0);
+    int sx = x0 < x1 ? 1 : -1;
+    int dy = abs((int)y1 - y0);
+    int sy = y0 < y1 ? 1 : -1;
+    int err = (int) (dx > dy ? dx : -dy) / 2;
+    int e2;
+    
+    while (1) 
+    {
+	VGA[(y0<<8)+(y0<<6)+x0]=color;
+        if (x0 == x1 && y0 == y1) break;
+        e2 = err;
+        if (e2 > -dx) { err -= dy; x0 += sx; }
+        if (e2 < dy) { err += dx; y0 += sy; }
+    }
+	
+    return 1;
+}
 
 static const luaL_Reg base_funcs[] = {
   {"assert", luaB_assert},
@@ -469,6 +541,9 @@ static const luaL_Reg base_funcs[] = {
   {"type", luaB_type},
   {"unpack", luaB_unpack},
   {"xpcall", luaB_xpcall},
+  {"vga_init", luaB_vga_init},
+  {"plot_pixel", luaB_plot_pixel},
+  {"plot_line", luaB_plot_line},
   {NULL, NULL}
 };
 
@@ -650,4 +725,3 @@ LUALIB_API int luaopen_base (lua_State *L) {
   luaL_register(L, LUA_COLIBNAME, co_funcs);
   return 2;
 }
-
