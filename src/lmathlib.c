@@ -33,30 +33,30 @@ static int math_sin (lua_State *L) {
   return 1;
 }
 
-static int math_sinh (lua_State *L) {
-  lua_pushnumber(L, sinh(luaL_checknumber(L, 1)));
-  return 1;
-}
+//static int math_sinh (lua_State *L) {
+//  lua_pushnumber(L, sinh(luaL_checknumber(L, 1)));
+//  return 1;
+//}
 
 static int math_cos (lua_State *L) {
   lua_pushnumber(L, cos(luaL_checknumber(L, 1)));
   return 1;
 }
 
-static int math_cosh (lua_State *L) {
-  lua_pushnumber(L, cosh(luaL_checknumber(L, 1)));
-  return 1;
-}
+//static int math_cosh (lua_State *L) {
+//  lua_pushnumber(L, cosh(luaL_checknumber(L, 1)));
+//  return 1;
+//}
 
 static int math_tan (lua_State *L) {
   lua_pushnumber(L, tan(luaL_checknumber(L, 1)));
   return 1;
 }
 
-static int math_tanh (lua_State *L) {
-  lua_pushnumber(L, tanh(luaL_checknumber(L, 1)));
-  return 1;
-}
+//static int math_tanh (lua_State *L) {
+//  lua_pushnumber(L, tanh(luaL_checknumber(L, 1)));
+//  return 1;
+//}
 
 static int math_asin (lua_State *L) {
   lua_pushnumber(L, asin(luaL_checknumber(L, 1)));
@@ -219,7 +219,7 @@ static const luaL_Reg mathlib[] = {
   {"atan2", math_atan2},
   {"atan",  math_atan},
   {"ceil",  math_ceil},
-  {"cosh",   math_cosh},
+//  {"cosh",   math_cosh},
   {"cos",   math_cos},
   {"deg",   math_deg},
   {"exp",   math_exp},
@@ -236,10 +236,10 @@ static const luaL_Reg mathlib[] = {
   {"rad",   math_rad},
   {"random",     math_random},
   {"randomseed", math_randomseed},
-  {"sinh",   math_sinh},
+//  {"sinh",   math_sinh},
   {"sin",   math_sin},
   {"sqrt",  math_sqrt},
-  {"tanh",   math_tanh},
+  // {"tanh",   math_tanh},
   {"tan",   math_tan},
   {NULL, NULL}
 };

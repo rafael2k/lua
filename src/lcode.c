@@ -6,6 +6,7 @@
 
 
 #include <stdlib.h>
+#include <math.h>
 
 #define lcode_c
 #define LUA_CORE
