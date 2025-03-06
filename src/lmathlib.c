@@ -23,6 +23,23 @@
 
 // #define HUGE_VAL 2147483647LU
 
+int32_t pow2(int32_t base, int32_t exponent)
+{
+    if (exponent < 0) {
+        return 0; // Negative exponents are not supported for integers
+    }
+
+    int32_t result = 1;
+    while (exponent > 0) {
+        if (exponent % 2 == 1) {
+            result *= base; // Multiply result by base if exponent is odd
+        }
+        base *= base; // Square the base
+        exponent /= 2; // Halve the exponent
+    }
+    return result;
+}
+
 
 int32_t ldexp2(int32_t x, int32_t exp) {
     if (x == 0) {
@@ -136,7 +153,7 @@ static int math_sqrt (lua_State *L) {
 #endif
 
 static int math_pow (lua_State *L) {
-  lua_pushnumber(L, pow(luaL_checknumber(L, 1), luaL_checknumber(L, 2)));
+  lua_pushnumber(L, pow2(luaL_checknumber(L, 1), luaL_checknumber(L, 2)));
   return 1;
 }
 

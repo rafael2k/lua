@@ -530,12 +530,13 @@
 */
 #if defined(LUA_CORE)
 // #include <math.h>
+int32_t pow2(int32_t base, int32_t exponent);
 #define luai_numadd(a,b)	((a)+(b))
 #define luai_numsub(a,b)	((a)-(b))
 #define luai_nummul(a,b)	((a)*(b))
 #define luai_numdiv(a,b)	((a)/(b))
 #define luai_nummod(a,b)	((a) - ((a)/(b))*(b))
-#define luai_numpow(a,b)	(pow(a,b))
+#define luai_numpow(a,b)	(pow2(a,b))
 #define luai_numunm(a)		(-(a))
 #define luai_numeq(a,b)		((a)==(b))
 #define luai_numlt(a,b)		((a)<(b))

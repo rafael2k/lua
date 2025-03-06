@@ -56,7 +56,7 @@ static int os_rename (lua_State *L) {
 int tmpfile_counter = 0;
 
 static void generate_temp_filename(char *buff) {
-    sprintf(buff, "tempfile_%d.tmp", tmpfile_counter++);
+    sprintf(buff, "tmp_%d.tmp", tmpfile_counter++);
 }
 
 
