@@ -2,6 +2,12 @@ This is a Lua port for ELKS using int32_t as Lua number.
 Not all features will behave properly - keep integer-only for
 predictable results.
 
+Other branches are:
+
+https://github.com/rafael2k/lua/tree/lua-5.1 - Lua 5.1.5 with minimal patching to run on ELKS
+https://github.com/rafael2k/lua/tree/lua-5.1i - Special integer-only Lua 5.1.5 (does not have most mathlib functions)
+https://github.com/rafael2k/lua/tree/master - Tracking PUC-Rio upstream Lua (to become Lua 5.5), minimal patching for ELKS port
+
 ![screenshot1](lua-capt.jpg)
 
 
