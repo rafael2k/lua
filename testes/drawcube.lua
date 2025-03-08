@@ -38,13 +38,25 @@ local function project3D(x, y, z)
   return screenX, screenY
 end
 
+local function shallow_copy(orig)
+    local copy = {}  -- Create a new table
+    for k, v in pairs(orig) do
+        copy[k] = {v[1], v[2]}  -- Copy the inner table manually
+    end
+    return copy
+end
+
+local old_transformed = {}
+
+local function main ()
+
 while true do
 -- Clear screen
-   for x = 0, 319 do
-    for y = 0, 199 do
-      plot_pixel(x, y, 0) -- Black
-    end
-   end
+   --for x = 0, 319 do
+   -- for y = 0, 199 do
+   --   plot_pixel(x, y, 0) -- Black
+   -- end
+   --end
 
    local transformed = {}
 
@@ -61,6 +73,14 @@ while true do
      transformed[i] = {screenX, screenY} -- Store the transformed screen coordinates
    end
 
+-- Clear cube
+   for _, edge in ipairs(edges) do
+      local p1, p2 = old_transformed[edge[1]], old_transformed[edge[2]]
+      if p1 and p2 then
+         plot_line(p1[1], p1[2], p2[1], p2[2], 0)  -- black color
+      end
+   end
+
 -- Draw cube edges
    for _, edge in ipairs(edges) do
       local p1, p2 = transformed[edge[1]], transformed[edge[2]]
@@ -68,9 +88,22 @@ while true do
    end
 
 -- Update rotation
+   --missing angle reset: if angle > 2 math.pi angle = 0
    angleX = angleX + (5 / 100)
    angleY = angleY + (3 / 100)
 
+-- Save previous
+   old_transformed = shallow_copy(transformed)
+
 -- Delay to control speed
--- delay(30)
+   sleep_ms(20)
+
+end
+end 
+
+local success, err = pcall(main)
+
+if not success then
+    vga_init(3)
+    print("Interrupted! Exiting gracefully.")
 end
