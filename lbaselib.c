@@ -21,6 +21,8 @@
 #include "lualib.h"
 #include "llimits.h"
 
+#include <unistd.h>
+
 typedef unsigned char  byte;
 byte __far *VGA = (byte __far *)0xA0000000L;
 
@@ -513,6 +515,7 @@ static int luaB_tostring (lua_State *L) {
   return 1;
 }
 
+//START non-standard functions
 static int luaB_vga_init(lua_State *L)
 {
   lua_Number mode = luaL_checknumber(L, 1);  // Get the argument
@@ -586,6 +589,18 @@ static int luaB_plot_line(lua_State *L)
     return 1;
 }
 
+static int luaB_sleep_ms(lua_State *L)
+{
+  lua_Number number = luaL_checknumber(L, 1);
+  unsigned int ms = (unsigned int) number;
+
+  usleep(1000 * ms);
+
+  return 1;
+}
+
+//END non-standard functions
+
 static const luaL_Reg base_funcs[] = {
   {"assert", luaB_assert},
   {"collectgarbage", luaB_collectgarbage},
@@ -613,6 +628,7 @@ static const luaL_Reg base_funcs[] = {
   {"vga_init", luaB_vga_init},
   {"plot_pixel", luaB_plot_pixel},
   {"plot_line", luaB_plot_line},
+  {"sleep_ms", luaB_sleep_ms},
   /* placeholders */
   {LUA_GNAME, NULL},
   {"_VERSION", NULL},
