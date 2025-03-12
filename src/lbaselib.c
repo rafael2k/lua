@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #define lbaselib_c
 #define LUA_LIB
@@ -445,8 +446,8 @@ static int luaB_newproxy (lua_State *L) {
 
 static int luaB_vga_init(lua_State *L)
 {
-lua_Number mode = luaL_checknumber(L, 1);  // Get the argument
-unsigned short int mode_int = (unsigned short int) mode;
+    lua_Number mode = luaL_checknumber(L, 1);  // Get the argument
+    unsigned short int mode_int = (unsigned short int) mode;
 
 _asm{
                 push si
@@ -460,8 +461,19 @@ _asm{
                 pop di
                 pop si
         }
-return 1;
+    return 1;
 }
+
+static int luaB_sleep_ms(lua_State *L)
+{
+    lua_Number number = luaL_checknumber(L, 1);
+    unsigned int ms = (unsigned int) number;
+
+    usleep(1000 * ms);
+
+    return 1;
+}
+
 
 static int luaB_plot_pixel(lua_State *L)
 {
@@ -544,6 +556,7 @@ static const luaL_Reg base_funcs[] = {
   {"vga_init", luaB_vga_init},
   {"plot_pixel", luaB_plot_pixel},
   {"plot_line", luaB_plot_line},
+  {"sleep_ms", luaB_sleep_ms},  
   {NULL, NULL}
 };
 
