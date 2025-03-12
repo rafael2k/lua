@@ -38,27 +38,12 @@ local function project3D(x, y, z)
   return screenX, screenY
 end
 
-local function shallow_copy(orig)
-    local copy = {}  -- Create a new table
-    for k, v in pairs(orig) do
-        copy[k] = {v[1], v[2]}  -- Copy the inner table manually
-    end
-    return copy
-end
-
-local old_transformed = {}
-
 local function main ()
 
-while true do
--- Clear screen
-   --for x = 0, 319 do
-   -- for y = 0, 199 do
-   --   plot_pixel(x, y, 0) -- Black
-   -- end
-   --end
+local old_transformed = {}
+local transformed = {}
 
-   local transformed = {}
+while true do
 
 -- Rotate and project each vertex
    for i, v in ipairs(cube) do
@@ -93,8 +78,14 @@ while true do
    angleY = angleY + (3 / 100)
 
 -- Save previous
-   old_transformed = shallow_copy(transformed)
-
+   for i = 1, #transformed do
+     if old_transformed[i] then
+        old_transformed[i][1] = transformed[i][1]
+        old_transformed[i][2] = transformed[i][2]
+     else
+        old_transformed[i] = {transformed[i][1], transformed[i][2]}
+     end
+   end
 -- Delay to control speed
    sleep_ms(20)
 
