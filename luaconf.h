@@ -464,8 +464,8 @@
 #define LUAI_UACNUMBER	double
 
 #define LUA_NUMBER_FRMLEN	""
-#define LUA_NUMBER_FMT		"%.7g"
-#define LUA_NUMBER_FMT_N	"%.9g"
+#define LUA_NUMBER_FMT		"%.6f"
+#define LUA_NUMBER_FMT_N	"%.8f"
 
 #define l_mathop(op)		op##f
 
