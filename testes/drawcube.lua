@@ -55,7 +55,13 @@ while true do
 
      -- Project after both rotations
      local screenX, screenY = project3D(finalX, finalY, finalZ)
-     transformed[i] = {screenX, screenY} -- Store the transformed screen coordinates
+     -- Store the transformed screen coordinates
+     if transformed[i] then
+         transformed[i][1] = screenX
+         transformed[i][2] = screenY
+     else
+         transformed[i] = {screenX, screenY} -- Store the transformed screen coordinates
+     end
    end
 
 -- Clear cube
