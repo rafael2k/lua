@@ -1,3 +1,8 @@
+--[[
+Rotating cube demo
+Developed by: Anton Andreev
+--]]
+
 -- Initialize the VGA mode (320x200 256-color mode)
 vga_init(0x13)
 
