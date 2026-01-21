@@ -37,7 +37,7 @@ OBJS = $(SRCS:.c=.obj)
 
 BINDIR = ../elks-bin
 LOCALFLAGS = -DNDEBUG
-PROG = lua luac
+PROG = lua5.1i
 
 # lmathlib.c removed
 SRCS = mem.c lmathlib.c lapi.c lcode.c ldebug.c ldo.c ldump.c lfunc.c lgc.c llex.c lmem.c \
@@ -49,11 +49,8 @@ all: $(PROG)
 
 elks: all
 
-lua: $(OBJS) lua.obj
+lua5.1i: $(OBJS) lua.obj
 	$(LD) $(LDFLAGS) -o $@ $(OBJS) lua.obj $(LDLIBS)
-
-luac: $(OBJS) luac.obj print.obj
-	$(LD) $(LDFLAGS) -o $@ $(OBJS) luac.obj print.obj $(LDLIBS)
 
 lua.obj: lua.c
 	$(CC) -c $(CFLAGS) -o lua.obj $<
@@ -65,4 +62,4 @@ print.obj: print.c
 	$(CC) -c $(CFLAGS) -o print.obj $<
 
 clean:
-	rm -f $(PROG) *.obj tmp.h
+	rm -f $(PROG) lua *.obj tmp.h
