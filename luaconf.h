@@ -8,7 +8,7 @@
 #ifndef luaconf_h
 #define luaconf_h
 
-#define HUGE_VAL __builtin_huge_val ()
+// #define HUGE_VAL __builtin_huge_val ()
 #include <limits.h>
 // #include <stddef.h>
 
