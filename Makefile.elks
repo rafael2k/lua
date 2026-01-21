@@ -37,7 +37,7 @@ OBJS = $(SRCS:.c=.obj)
 
 BINDIR = ../elks-bin
 LOCALFLAGS = -DNDEBUG
-PROG = lua5.5
+PROG = lua
 
 SRCS = lua.c mem.c lmathlib.c lapi.c lctype.c lfunc.c loslib.c \
      ltable.c lundump.c lauxlib.c ldblib.c lgc.c lmem.c \
@@ -53,4 +53,4 @@ $(PROG): $(OBJS)
 	$(LD) $(LDFLAGS) -o $@ $(OBJS) $(LDLIBS)
 
 clean:
-	rm -f $(PROG) lua *.obj tmp.h
+	rm -f $(PROG) *.obj tmp.h
