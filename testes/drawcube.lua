@@ -1,5 +1,5 @@
 --[[
-Rotating cube demo
+3D rotating cube demo
 Developed by: Anton Andreev
 --]]
 
