@@ -23,6 +23,15 @@
 
 #include <unistd.h>
 
+#ifdef USE_NANOX_BACKEND
+#include <nano-X.h>
+#ifndef MWRGB
+#define MWRGB(r,g,b) ((((unsigned long)(r)) << 16) | \
+                      (((unsigned long)(g)) << 8)  | \
+                      ((unsigned long)(b)))
+#endif
+#endif
+
 typedef unsigned char  byte;
 byte __far *VGA = (byte __far *)0xA0000000L;
 
@@ -517,11 +526,185 @@ static int luaB_tostring (lua_State *L) {
 }
 
 //START non-standard functions
+/*
+** Optional graphics backend for the extra Lua drawing functions.
+**
+** Default build (no USE_NANOX_BACKEND):
+**   - vga_init(mode) keeps the original BIOS VGA mode-switch behavior.
+**   - plot_pixel/plot_line keep the original direct VGA framebuffer behavior.
+**   - sleep_ms(ms) keeps the original usleep-based delay.
+**   - close_graphics() switches back to text mode 3.
+**
+** Build with -DUSE_NANOX_BACKEND:
+**   - vga_init(0x13) opens a 320x200 Nano-X window for compatibility with
+**     existing Lua scripts.
+**   - vga_init(3) closes the Nano-X window for old-script compatibility.
+**   - plot_pixel/plot_line draw into that Nano-X window.
+**   - sleep_ms(ms) waits while also processing Nano-X events.
+**   - close_graphics() closes the Nano-X window and connection.
+*/
+
+#ifdef USE_NANOX_BACKEND
+
+static GR_WINDOW_ID nx_win = 0;
+static GR_GC_ID nx_gc = 0;
+static int nx_open = 0;
+static int nx_quit_requested = 0;
+
+static GR_COLOR map_vga_color_to_nanox(unsigned int c)
+{
+  /* Basic VGA 16-color palette. The cube demo mostly uses 0 and 15. */
+  static const GR_COLOR pal[16] = {
+    MWRGB(0,   0,   0),     /* 0  black */
+    MWRGB(0,   0,   170),   /* 1  blue */
+    MWRGB(0,   170, 0),     /* 2  green */
+    MWRGB(0,   170, 170),   /* 3  cyan */
+    MWRGB(170, 0,   0),     /* 4  red */
+    MWRGB(170, 0,   170),   /* 5  magenta */
+    MWRGB(170, 85,  0),     /* 6  brown */
+    MWRGB(170, 170, 170),   /* 7  light gray */
+    MWRGB(85,  85,  85),    /* 8  dark gray */
+    MWRGB(85,  85,  255),   /* 9  light blue */
+    MWRGB(85,  255, 85),    /* 10 light green */
+    MWRGB(85,  255, 255),   /* 11 light cyan */
+    MWRGB(255, 85,  85),    /* 12 light red */
+    MWRGB(255, 85,  255),   /* 13 light magenta */
+    MWRGB(255, 255, 85),    /* 14 yellow */
+    MWRGB(255, 255, 255)    /* 15 white */
+  };
+
+  return pal[c & 15];
+}
+
+static void close_graphics_backend(void)
+{
+  if (!nx_open)
+    return;
+
+  if (nx_gc)
+    GrDestroyGC(nx_gc);
+
+  if (nx_win)
+    GrDestroyWindow(nx_win);
+
+  GrClose();
+
+  nx_win = 0;
+  nx_gc = 0;
+  nx_open = 0;
+  nx_quit_requested = 0;
+}
+
 static int luaB_vga_init(lua_State *L)
 {
-  lua_Number mode = luaL_checknumber(L, 1);  // Get the argument
+  /* Keep the same Lua signature as the VGA backend. In Nano-X mode,
+     mode 0x13 opens a 320x200 window and mode 3 closes it, so old
+     VGA-style scripts can still use vga_init(3) on exit. */
+  lua_Number mode = luaL_checknumber(L, 1);
   unsigned short int mode_int = (unsigned short int) mode;
 
+  if (mode_int == 3) {
+    close_graphics_backend();
+    return 0;
+  }
+
+  if (nx_open)
+    return 0;
+
+  if (GrOpen() < 0)
+    return luaL_error(L, "cannot open Nano-X");
+
+  nx_win = GrNewWindow(GR_ROOT_WINDOW_ID,
+                       0, 0,
+                       320, 200,
+                       0,
+                       map_vga_color_to_nanox(0),
+                       map_vga_color_to_nanox(0));
+
+  nx_gc = GrNewGC();
+
+  GrSelectEvents(nx_win,
+                 GR_EVENT_MASK_EXPOSURE |
+                 GR_EVENT_MASK_KEY_DOWN |
+                 GR_EVENT_MASK_CLOSE_REQ);
+
+  GrMapWindow(nx_win);
+  GrFlush();
+
+  nx_open = 1;
+  nx_quit_requested = 0;
+
+  return 0;
+}
+
+static int luaB_close_graphics(lua_State *L)
+{
+  (void)L;
+  close_graphics_backend();
+  return 0;
+}
+
+static void handle_nanox_event(GR_EVENT *ev)
+{
+  switch (ev->type) {
+    case GR_EVENT_TYPE_EXPOSURE:
+      /* The Lua layer has no redraw callback. For animations like the cube,
+         clearing the exposed window and letting the next frame draw is enough. */
+      if (nx_open)
+        GrClearWindow(nx_win, 0);
+      break;
+
+    case GR_EVENT_TYPE_CLOSE_REQ:
+      nx_quit_requested = 1;
+      break;
+
+    case GR_EVENT_TYPE_KEY_DOWN:
+      /* ESC or q stops the Lua animation through pcall(). */
+      if (ev->keystroke.ch == 27 || ev->keystroke.ch == 'q')
+        nx_quit_requested = 1;
+      break;
+
+    default:
+      break;
+  }
+}
+
+static int process_nanox_events(lua_State *L, unsigned int timeout_ms)
+{
+  GR_EVENT ev;
+
+  if (!nx_open)
+    return 0;
+
+  if (timeout_ms > 0) {
+    /* Wait for one event, or until the delay expires. */
+    GrGetNextEventTimeout(&ev, timeout_ms);
+    if (ev.type != GR_EVENT_TYPE_NONE)
+      handle_nanox_event(&ev);
+  }
+
+  /* Drain queued events without blocking. */
+  while (1) {
+    GrCheckNextEvent(&ev);
+    if (ev.type == GR_EVENT_TYPE_NONE)
+      break;
+    handle_nanox_event(&ev);
+  }
+
+  if (nx_quit_requested) {
+    close_graphics_backend();
+    return luaL_error(L, "Interrupted");
+  }
+
+  return 0;
+}
+
+#else  /* !USE_NANOX_BACKEND */
+
+/* Original VGA mode-set logic, factored out so close_graphics() can also
+   switch to text mode 3 without changing vga_init() semantics. */
+static void set_vga_mode(unsigned short int mode_int)
+{
        _asm{
                 push si
                 push di
@@ -534,8 +717,26 @@ static int luaB_vga_init(lua_State *L)
                 pop di
                 pop si
         }
-   return 1;
 }
+
+static int luaB_vga_init(lua_State *L)
+{
+  lua_Number mode = luaL_checknumber(L, 1);  // Get the argument
+  unsigned short int mode_int = (unsigned short int) mode;
+
+  set_vga_mode(mode_int);
+
+  return 0;
+}
+
+static int luaB_close_graphics(lua_State *L)
+{
+  (void)L;
+  set_vga_mode(3);
+  return 0;
+}
+
+#endif /* USE_NANOX_BACKEND */
 
 static int luaB_plot_pixel(lua_State *L)
 {
@@ -548,10 +749,18 @@ unsigned int y = (unsigned int) number;
 number = luaL_checknumber(L, 3);
 unsigned int c = (unsigned int) number;
 
+#ifdef USE_NANOX_BACKEND
+  if (!nx_open)
+    return luaL_error(L, "graphics backend not initialized");
+
+  GrSetGCForeground(nx_gc, map_vga_color_to_nanox(c));
+  GrPoint(nx_win, nx_gc, x, y);
+#else
 /*  y*320 = y*256 + y*64 = y*2^8 + y*2^6   */
 VGA[(y<<8)+(y<<6)+x]=c;
+#endif
 
-return 1;
+return 0;
 }
 
 static int luaB_plot_line(lua_State *L)
@@ -571,6 +780,13 @@ static int luaB_plot_line(lua_State *L)
     number = luaL_checknumber(L, 5);
     unsigned int color = (unsigned int) number;
 
+#ifdef USE_NANOX_BACKEND
+    if (!nx_open)
+      return luaL_error(L, "graphics backend not initialized");
+
+    GrSetGCForeground(nx_gc, map_vga_color_to_nanox(color));
+    GrLine(nx_win, nx_gc, x0, y0, x1, y1);
+#else
     int dx = abs((int)x1 - x0);
     int sx = x0 < x1 ? 1 : -1;
     int dy = abs((int)y1 - y0);
@@ -586,8 +802,9 @@ static int luaB_plot_line(lua_State *L)
         if (e2 > -dx) { err -= dy; x0 += sx; }
         if (e2 < dy) { err += dx; y0 += sy; }
     }
+#endif
 
-    return 1;
+    return 0;
 }
 
 static int luaB_sleep_ms(lua_State *L)
@@ -595,9 +812,12 @@ static int luaB_sleep_ms(lua_State *L)
   lua_Number number = luaL_checknumber(L, 1);
   unsigned int ms = (unsigned int) number;
 
+#ifdef USE_NANOX_BACKEND
+  return process_nanox_events(L, ms);
+#else
   usleep(1000 * ms);
-
-  return 1;
+  return 0;
+#endif
 }
 
 //END non-standard functions
@@ -627,6 +847,7 @@ static const luaL_Reg base_funcs[] = {
   {"type", luaB_type},
   {"xpcall", luaB_xpcall},
   {"vga_init", luaB_vga_init},
+  {"close_graphics", luaB_close_graphics},
   {"plot_pixel", luaB_plot_pixel},
   {"plot_line", luaB_plot_line},
   {"sleep_ms", luaB_sleep_ms},
@@ -649,4 +870,3 @@ LUAMOD_API int luaopen_base (lua_State *L) {
   lua_setfield(L, -2, "_VERSION");
   return 1;
 }
-
