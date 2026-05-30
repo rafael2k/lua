@@ -1,6 +1,7 @@
 # C86 Makefile for ELKS using OpenWatcom C
 
 ############# Standard Section for Open Watcom C ##############
+
 ifndef TOPDIR
 $(error ELKS TOPDIR is not defined)
 endif
@@ -11,46 +12,111 @@ endif
 
 CC = owcc
 LD = owcc
+
 CLBASE = -mcmodel=l
 CLBASE += -bnone -march=i86 -std=c99
 CLBASE += -fno-stack-check -fnostdlib -fsigned-char
 CLBASE += -Wc,-fpc -Wc,-zev -Wc,-zls -Wc,-x -Wc,-wcd=303
+
 WARNINGS = -Wall -Wextra
+
 INCLUDES = -I$(TOPDIR)/libc/include -I$(TOPDIR)/elks/include
 INCLUDES += -I$(TOPDIR)/libc/include/watcom
+
 DEFINES = -D__ELKS__ -DLUA_USE_C89
+
+# ------------------------------------------------------------
+# Optional Nano-X client backend
+#
+# Default:
+#   make -f Makefile.elks
+#
+# Build Lua with Nano-X client support:
+#   make -f Makefile.elks USE_NANOX_BACKEND=1
+#
+# NANOX_DIR must point to the Nano-X source directory containing:
+#   include/
+#   nanox/
+#   drivers/
+#   elksdrivers/
+#
+# Example override:
+#   make -f Makefile.elks USE_NANOX_BACKEND=1 NANOX_DIR=$(TOPDIR)/elkscmd/nano-X
+# ------------------------------------------------------------
+
+USE_NANOX_BACKEND ?= 0
+NANOX_DIR ?= $(TOPDIR)/elkscmd/nano-X
+
+# In the ELKS Nano-X Makefile, osdep.c is drivers/osdep.c.
+# If your tree has it somewhere else, override this variable.
+NANOX_OSDEP ?= $(NANOX_DIR)/drivers/osdep.c
+
+ifeq ($(USE_NANOX_BACKEND),1)
+DEFINES += -DUSE_NANOX_BACKEND
+DEFINES += -DELKS=1 -DUNIX=1 -DNONETWORK=0
+DEFINES += -DMWPIXEL_FORMAT=MWPF_PALETTE
+DEFINES += -DSCREEN_PIXTYPE=MWPF_PALETTE
+
+INCLUDES += -I$(NANOX_DIR)/include
+INCLUDES += -I$(NANOX_DIR)/nanox
+INCLUDES += -I$(NANOX_DIR)/drivers
+INCLUDES += -I$(NANOX_DIR)/elksdrivers
+
+NANOX_CLIENT_OBJS = nx_client.obj nx_nxproto.obj nx_nxutil.obj nx_osdep.obj
+endif
+
+BINDIR = ../elks-bin
+LOCALFLAGS = -DNDEBUG
+PROG = lua
+
 CFLAGS = -Os $(CLBASE) $(WARNINGS) $(INCLUDES) $(DEFINES) $(LOCALFLAGS)
+
 LDBASE = -bos2 -s
 LDBASE += -Wl,option -Wl,dosseg
 LDBASE += -Wl,option -Wl,start=_start
 LDBASE += -Wl,option -Wl,nodefaultlibs
 LDBASE += -Wl,option -Wl,stack=0x6000
 LDBASE += -Wl,option -Wl,heapsize=512
+
 LDFLAGS = $(LDBASE)
+
 LDLIBS = -Wl,library -Wl,$(TOPDIR)/libc/libcl.lib -lm
 
-OBJS = $(SRCS:.c=.obj)
+SRCS = lua.c mem.c lmathlib.c lapi.c lctype.c lfunc.c loslib.c \
+       ltable.c lundump.c lauxlib.c ldblib.c lgc.c lmem.c \
+       lparser.c ltablib.c lutf8lib.c lbaselib.c ldebug.c \
+       linit.c loadlib.c lstate.c ltm.c lvm.c lcode.c \
+       ldo.c liolib.c lobject.c lstring.c lzio.c \
+       lcorolib.c ldump.c llex.c lopcodes.c lstrlib.c
+
+OBJS = $(SRCS:.c=.obj) $(NANOX_CLIENT_OBJS)
+
 %.obj: %.c
 	$(CC) -c $(CFLAGS) -o $*.obj $<
 
 ############# End of Standard Section ##############
 
-BINDIR = ../elks-bin
-LOCALFLAGS = -DNDEBUG
-PROG = lua
-
-SRCS = lua.c mem.c lmathlib.c lapi.c lctype.c lfunc.c loslib.c \
-     ltable.c lundump.c lauxlib.c ldblib.c lgc.c lmem.c \
-        lparser.c ltablib.c lutf8lib.c lbaselib.c ldebug.c \
-        linit.c loadlib.c lstate.c ltm.c lvm.c lcode.c \
-        ldo.c liolib.c lobject.c lstring.c lzio.c \
-        lcorolib.c ldump.c llex.c lopcodes.c lstrlib.c \
-
-
 all: $(PROG)
 
 $(PROG): $(OBJS)
 	$(LD) $(LDFLAGS) -o $@ $(OBJS) $(LDLIBS)
+
+# ------------------------------------------------------------
+# Nano-X client-side objects compiled directly into Lua.
+# This avoids linking against a prebuilt libnano-X.a/.lib.
+# ------------------------------------------------------------
+
+nx_client.obj: $(NANOX_DIR)/nanox/client.c
+	$(CC) -c $(CFLAGS) -o $@ $<
+
+nx_nxproto.obj: $(NANOX_DIR)/nanox/nxproto.c
+	$(CC) -c $(CFLAGS) -o $@ $<
+
+nx_nxutil.obj: $(NANOX_DIR)/nanox/nxutil.c
+	$(CC) -c $(CFLAGS) -o $@ $<
+
+nx_osdep.obj: $(NANOX_OSDEP)
+	$(CC) -c $(CFLAGS) -o $@ $<
 
 clean:
 	rm -f $(PROG) *.obj tmp.h
