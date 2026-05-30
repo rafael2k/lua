@@ -1,7 +1,7 @@
-# C86 Makefile for ELKS using OpenWatcom C
+# Lua Makefile for ELKS, compiled using OpenWatcom C
+# make -f Makefile.elks 
 
-############# Standard Section for Open Watcom C ##############
-
+# ELKS' TOPDIR and WATCOM variables are required
 ifndef TOPDIR
 $(error ELKS TOPDIR is not defined)
 endif
@@ -26,30 +26,15 @@ INCLUDES += -I$(TOPDIR)/libc/include/watcom
 DEFINES = -D__ELKS__ -DLUA_USE_C89
 
 # ------------------------------------------------------------
-# Optional Nano-X client backend
-#
-# Default:
-#   make -f Makefile.elks
-#
-# Build Lua with Nano-X client support:
-#   make -f Makefile.elks USE_NANOX_BACKEND=1
-#
-# NANOX_DIR must point to the Nano-X source directory containing:
-#   include/
-#   nanox/
-#   drivers/
-#   elksdrivers/
-#
-# Example override:
-#   make -f Makefile.elks USE_NANOX_BACKEND=1 NANOX_DIR=$(TOPDIR)/elkscmd/nano-X
+# Optional Nano-X client backend. Switches graphics from VGA to Nano-X.
+# NANOX_DIR must point to the Nano-X source directory containing: include/ nanox/ drivers/
+# Example console override:
+#   make -f Makefile.elks USE_NANOX_BACKEND=1 NANOX_DIR=/root/microwindows/src
+# Example usage:
+#   /bin/nano-x & /bin/lua /root/drawcube.lua
 # ------------------------------------------------------------
-
 USE_NANOX_BACKEND ?= 0
-NANOX_DIR ?= $(TOPDIR)/elkscmd/nano-X
-
-# In the ELKS Nano-X Makefile, osdep.c is drivers/osdep.c.
-# If your tree has it somewhere else, override this variable.
-NANOX_OSDEP ?= $(NANOX_DIR)/drivers/osdep.c
+NANOX_DIR ?= /root/toncho11_microwindows/src
 
 ifeq ($(USE_NANOX_BACKEND),1)
 DEFINES += -DUSE_NANOX_BACKEND
@@ -60,7 +45,6 @@ DEFINES += -DSCREEN_PIXTYPE=MWPF_PALETTE
 INCLUDES += -I$(NANOX_DIR)/include
 INCLUDES += -I$(NANOX_DIR)/nanox
 INCLUDES += -I$(NANOX_DIR)/drivers
-INCLUDES += -I$(NANOX_DIR)/elksdrivers
 
 NANOX_CLIENT_OBJS = nx_client.obj nx_nxproto.obj nx_nxutil.obj nx_osdep.obj
 endif
@@ -115,7 +99,7 @@ nx_nxproto.obj: $(NANOX_DIR)/nanox/nxproto.c
 nx_nxutil.obj: $(NANOX_DIR)/nanox/nxutil.c
 	$(CC) -c $(CFLAGS) -o $@ $<
 
-nx_osdep.obj: $(NANOX_OSDEP)
+nx_osdep.obj: $(NANOX_DIR)/drivers/osdep.c
 	$(CC) -c $(CFLAGS) -o $@ $<
 
 clean:
