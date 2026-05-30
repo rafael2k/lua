@@ -1,7 +1,5 @@
 This is an ELKS (Linux 8086) port to Lua, with minimal patching. Lua
-is built with OWC and soft-fpu.
-
-Compilation require Open Watcom C, a host compiler for ELKS. For setup check [here](https://github.com/ghaerr/elks/wiki/Using-OpenWatcom-C-with-ELKS).
+is built with OWC and soft-fpu. For compiler setup check [here](https://github.com/ghaerr/elks/wiki/Using-OpenWatcom-C-with-ELKS).
 
 There is also a 5.1i branch with an integer-only version and lua-5.1 branch of Lua 5.1.5 with minimal patching.
 
