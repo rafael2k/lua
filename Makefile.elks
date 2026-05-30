@@ -26,14 +26,14 @@ INCLUDES += -I$(TOPDIR)/libc/include/watcom
 DEFINES = -D__ELKS__ -DLUA_USE_C89
 
 # ------------------------------------------------------------
-# Optional Nano-X client backend. Switches graphics from VGA to Nano-X.
+# Optional Nano-X client backend. Switches graphics from VGA to Nano-X when USE_NANOX_BACKEND = 1
 # NANOX_DIR must point to the Nano-X source directory containing: include/ nanox/ drivers/
 # Example console override:
 #   make -f Makefile.elks USE_NANOX_BACKEND=1 NANOX_DIR=/root/microwindows/src
 # Example usage:
 #   /bin/nano-x & /bin/lua /root/drawcube.lua
 # ------------------------------------------------------------
-USE_NANOX_BACKEND ?= 1
+USE_NANOX_BACKEND ?= 0
 NANOX_DIR ?= /root/toncho11_microwindows/src
 
 ifeq ($(USE_NANOX_BACKEND),1)
