@@ -24,7 +24,7 @@
 #include <unistd.h>
 
 #ifdef USE_NANOX_BACKEND
-#include <nano-X.h>
+#include "nano-X.h"
 #ifndef MWRGB
 #define MWRGB(r,g,b) ((((unsigned long)(r)) << 16) | \
                       (((unsigned long)(g)) << 8)  | \
