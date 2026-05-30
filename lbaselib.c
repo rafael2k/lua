@@ -676,20 +676,12 @@ static int process_nanox_events(lua_State *L, unsigned int timeout_ms)
   if (!nx_open)
     return 0;
 
-  if (timeout_ms > 0) {
-    /* Wait for one event, or until the delay expires. */
-    GrGetNextEventTimeout(&ev, timeout_ms);
-    if (ev.type != GR_EVENT_TYPE_NONE)
-      handle_nanox_event(&ev);
-  }
+  memset(&ev, 0, sizeof(ev));
 
-  /* Drain queued events without blocking. */
-  while (1) {
-    GrCheckNextEvent(&ev);
-    if (ev.type == GR_EVENT_TYPE_NONE)
-      break;
+  GrGetNextEventTimeout(&ev, timeout_ms);
+
+  if (ev.type != 0)
     handle_nanox_event(&ev);
-  }
 
   if (nx_quit_requested) {
     close_graphics_backend();
