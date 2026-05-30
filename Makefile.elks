@@ -33,7 +33,7 @@ DEFINES = -D__ELKS__ -DLUA_USE_C89
 # Example usage:
 #   /bin/nano-x & /bin/lua /root/drawcube.lua
 # ------------------------------------------------------------
-USE_NANOX_BACKEND ?= 0
+USE_NANOX_BACKEND ?= 1
 NANOX_DIR ?= /root/toncho11_microwindows/src
 
 ifeq ($(USE_NANOX_BACKEND),1)
