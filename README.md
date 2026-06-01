@@ -6,6 +6,18 @@ Other branches are:
 
 https://github.com/rafael2k/lua/tree/lua-5.1 - Lua 5.1.5 with minimal patching to run on ELKS
 https://github.com/rafael2k/lua/tree/lua-5.1i - Special integer-only Lua 5.1.5 (does not have most mathlib functions)
+
+## Build notes
+
+Lua is built with OpenWatcom C for ELKS.
+
+- Default ELKS build: `make`
+- Optional Nano-X graphics backend: `make USE_NANOX_BACKEND=1 NANOX_DIR=/path/to/microwindows/src`
+
+With the Nano-X backend enabled, the existing graphics helpers (`vga_init`,
+`plot_pixel`, `plot_line`, `sleep_ms`) run against a 320x200 Nano-X window
+instead of the raw VGA framebuffer. Existing scripts can still use
+`vga_init(0x13)` to open graphics mode and `vga_init(3)` to close it.
 https://github.com/rafael2k/lua/tree/master - Tracking PUC-Rio upstream Lua (to become Lua 5.5), minimal patching for ELKS port
 
 ![screenshot1](lua-capt.jpg)
