@@ -528,13 +528,7 @@ static int luaB_tostring (lua_State *L) {
 //START non-standard functions
 /*
 ** Optional graphics backend for the extra Lua drawing functions.
-**
 ** Default build (no USE_NANOX_BACKEND):
-**   - vga_init(mode) keeps the original BIOS VGA mode-switch behavior.
-**   - plot_pixel/plot_line keep the original direct VGA framebuffer behavior.
-**   - sleep_ms(ms) keeps the original usleep-based delay.
-**   - close_graphics() switches back to text mode 3.
-**
 ** Build with -DUSE_NANOX_BACKEND:
 **   - vga_init(0x13) opens a 320x200 Nano-X window for compatibility with
 **     existing Lua scripts.
@@ -542,9 +536,13 @@ static int luaB_tostring (lua_State *L) {
 **   - plot_pixel/plot_line draw into that Nano-X window.
 **   - sleep_ms(ms) waits while also processing Nano-X events.
 **   - close_graphics() closes the Nano-X window and connection.
+**
+** The API uses VGA in the names of the functions, but it supports both VGA and Nano-x. This was done for compatibility with existing drawcube.lua script.
 */
 
 #ifdef USE_NANOX_BACKEND
+
+/*  Nano-X versions of the API functions */
 
 static GR_WINDOW_ID nx_win = 0;
 static GR_GC_ID nx_gc = 0;
@@ -553,7 +551,7 @@ static int nx_quit_requested = 0;
 
 static GR_COLOR map_vga_color_to_nanox(unsigned int c)
 {
-  /* Basic VGA 16-color palette. The cube demo mostly uses 0 and 15. */
+  /* Basic VGA 16-color palette. */
   static const GR_COLOR pal[16] = {
     MWRGB(0,   0,   0),     /* 0  black */
     MWRGB(0,   0,   170),   /* 1  blue */
@@ -595,9 +593,10 @@ static void close_graphics_backend(void)
   nx_quit_requested = 0;
 }
 
+/* Currently used for both VGA and Nano-X */
 static int luaB_vga_init(lua_State *L)
 {
-  /* Keep the same Lua signature as the VGA backend. In Nano-X mode,
+  /* Keeps the same Lua signature as the VGA backend. In Nano-X mode,
      mode 0x13 opens a 320x200 window and mode 3 closes it, so old
      VGA-style scripts can still use vga_init(3) on exit. */
   lua_Number mode = luaL_checknumber(L, 1);
@@ -693,8 +692,7 @@ static int process_nanox_events(lua_State *L, unsigned int timeout_ms)
 
 #else  /* !USE_NANOX_BACKEND */
 
-/* Original VGA mode-set logic, factored out so close_graphics() can also
-   switch to text mode 3 without changing vga_init() semantics. */
+/* VGA versions of the API below */
 static void set_vga_mode(unsigned short int mode_int)
 {
        _asm{
@@ -713,7 +711,7 @@ static void set_vga_mode(unsigned short int mode_int)
 
 static int luaB_vga_init(lua_State *L)
 {
-  lua_Number mode = luaL_checknumber(L, 1);  // Get the argument
+  lua_Number mode = luaL_checknumber(L, 1);
   unsigned short int mode_int = (unsigned short int) mode;
 
   set_vga_mode(mode_int);
